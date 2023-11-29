@@ -1,0 +1,20 @@
+{
+  "commandPrefix": ";",
+  "discordToken": "NzM0NDgzMDM2Njc4MjU4ODE5.XxSWoQ.nIQ8kh8Ddv-IQPQpSlIFRydbQ1c",
+  "systemOutputChannelID": 664566973270720532,
+  "discordSettings": {
+    "allowReload": false,
+    "eyesOnEdit": false,
+    "pongOnPing": true,
+    "creeper?": true,
+    "bruhOnDelete": false
+  },
+  "servers": [
+    {
+      "Item1": 1,
+      "Item2": 780431264833732640,
+      "Item3": "C:/Users/eriks/Desktop/testmcserver/serverstart.bat",
+      "Item4": "test-server"
+    }
+  ]
+}

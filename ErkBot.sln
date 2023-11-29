@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34322.80
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ErkBot", "ErkBot\ErkBot.csproj", "{2CCBCECD-D362-47D8-91D9-96FEF69E2A42}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "discord bot framework", "discord bot\discord bot framework.csproj", "{B6313719-70B7-42B9-B889-2996614363F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErkBot.Console", "ErkBot.Console\ErkBot.Console.csproj", "{78F3232C-69A0-45B5-9F68-14E1AD82EB31}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErkBot.WinForms", "ErkBot.WinForms\ErkBot.WinForms.csproj", "{E4B03847-C9BA-483B-9B06-B201DB139226}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2CCBCECD-D362-47D8-91D9-96FEF69E2A42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CCBCECD-D362-47D8-91D9-96FEF69E2A42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CCBCECD-D362-47D8-91D9-96FEF69E2A42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CCBCECD-D362-47D8-91D9-96FEF69E2A42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6313719-70B7-42B9-B889-2996614363F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6313719-70B7-42B9-B889-2996614363F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6313719-70B7-42B9-B889-2996614363F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6313719-70B7-42B9-B889-2996614363F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78F3232C-69A0-45B5-9F68-14E1AD82EB31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78F3232C-69A0-45B5-9F68-14E1AD82EB31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78F3232C-69A0-45B5-9F68-14E1AD82EB31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78F3232C-69A0-45B5-9F68-14E1AD82EB31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4B03847-C9BA-483B-9B06-B201DB139226}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4B03847-C9BA-483B-9B06-B201DB139226}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4B03847-C9BA-483B-9B06-B201DB139226}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4B03847-C9BA-483B-9B06-B201DB139226}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B9A4DCE6-ADBF-484D-A62E-97651E86342C}
+	EndGlobalSection
+EndGlobal
