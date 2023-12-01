@@ -42,9 +42,9 @@ public class MinecraftServer : BaseServer
         }
     }
 
-    public override Task<bool> Start()
+    public async override Task<bool> Start()
     {
-        return Task.Run(async () =>
+        return await Task.Run(async () =>
         {
             try
             {
