@@ -47,8 +47,8 @@ namespace discord_bot
                     EnableRaisingEvents = true,
                     StartInfo = procStartInfo
                 };
-                server.OutputDataReceived += ServerRecievedData;
-                server.ErrorDataReceived += ServerRecievedData;
+                server.OutputDataReceived += ServerReceivedData;
+                server.ErrorDataReceived += ServerReceivedData;
                 server.Exited += ShutDown;
                 server.Start();
                 server.BeginErrorReadLine();
@@ -71,7 +71,7 @@ namespace discord_bot
             Program.SendMessage(new Message(outputChannel, "server just died RIP \n exitcode: " + server.ExitCode));
             Program.SendMessage(new Message(Config.OutputChannel, $"server \"{serverName}\" has stopped"));
         }
-        protected async void ServerRecievedData(object sender, DataReceivedEventArgs e)
+        protected async void ServerReceivedData(object sender, DataReceivedEventArgs e)
         {
             try
             {

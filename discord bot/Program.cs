@@ -111,7 +111,7 @@ namespace discord_bot
             if (message.Content != null)
             {
                 Message recursionMsg = null;
-                //cut up message if longer than 2000 characters
+                //cut up message if ulonger than 2000 characters
                 if (message.Content.Length > 2000)
                 {
                     recursionMsg = new Message(message.Destination, message.Content.Substring(2000));
@@ -126,8 +126,8 @@ namespace discord_bot
             }
             else
             {
-                Console.WriteLine("message without content recieved, ignoring");
-                Form.AddToTextBox("message without content recieved, ignoring", Form.systemOutputTextbox);
+                Console.WriteLine("message without content received, ignoring");
+                Form.AddToTextBox("message without content received, ignoring", Form.systemOutputTextbox);
             }
         }
         public static Message SendMessage(DiscordChannel destination, string content)

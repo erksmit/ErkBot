@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ErkBot.Server.Minecraft;
-public class MinecraftServerConfiguration : ServerConfiguration
-{
-    public string ServerDirectory { get; set; }
-    public string StartScriptPath { get; set; }
-}
+﻿namespace ErkBot.Server.Minecraft;
+public record MinecraftServerConfiguration(
+    string ServerDirectory, 
+    string StartScriptPath, 
+    string Name, 
+    ulong OutputChannelId, 
+    bool Enabled,
+    ServerType Type
+) : ServerConfiguration(Name, OutputChannelId, Enabled, Type);

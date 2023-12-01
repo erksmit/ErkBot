@@ -1,37 +1,73 @@
-﻿using DSharpPlus.Entities;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
+﻿using DSharpPlus;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ErkBot.Server.Minecraft;
 public class MinecraftServer : BaseServer
 {
-    private Process process;
-    private string serverDirectory;
-    private string startScriptPath;
+    private readonly Process process;
+    private readonly string serverDirectory;
+    private readonly string startScriptPath;
 
-    public MinecraftServer(MinecraftServerConfiguration config, DiscordChannel logChannel) : base(logChannel, config)
+    public MinecraftServer(DiscordClient client, MinecraftServerConfiguration config) : base(client, config)
     {
         serverDirectory = config.ServerDirectory;
         startScriptPath = config.StartScriptPath;
+        process = new Process
+        {
+            StartInfo =
+            {
+                RedirectStandardOutput = true,
+                RedirectStandardInput = true,
+                CreateNoWindow = true,
+                FileName = startScriptPath,
+                WorkingDirectory = serverDirectory,
+            },
+            
+        };
+
     }
 
-    public override void Kill()
+    public override event EventHandler<ServerMessageReceivedEventArgs>? MessageReceived;
+
+    public override bool Kill()
     {
-        throw new NotImplementedException();
+        try
+        {
+            process.Kill();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
-    public override Task Start(double timeOut)
+    public override Task<bool> Start()
     {
-        throw new NotImplementedException();
+        return Task.Run(async () =>
+        {
+            try
+            {
+                if(LogChannel == null)
+                {
+                    LogChannel = await discordClient.GetChannelAsync(logChannelId);
+                }
+
+                process.Start();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        });
     }
 
-    public override Task Stop(double timeOut)
+    public async override Task<bool> Stop(int timeOut)
     {
-        throw new NotImplementedException();
+        return await Task.Run(() =>
+        {
+            return process.WaitForExit(timeOut);
+        });
     }
 }
