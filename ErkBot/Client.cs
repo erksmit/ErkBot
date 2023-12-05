@@ -37,8 +37,7 @@ public class Client
             {
                 case ServerType.Minecraft:
                     {
-                        var minecraftServerConfig = serverConfig as MinecraftServerConfiguration ?? throw new ConfigurationException("Minecraft server configuration is not valid");
-                        var server = new MinecraftServer(client, minecraftServerConfig);
+                        var server = new MinecraftServer(client, serverConfig);
                         Servers.Add(server);
                         break;
                     }

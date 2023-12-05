@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ErkBot.Command
 {
-    internal class Help
+    internal class HelpFormatter
     {
     }
 }
