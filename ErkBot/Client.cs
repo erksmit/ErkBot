@@ -1,9 +1,11 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
+
 using ErkBot.Server;
-using ErkBot.Server.Minecraft;
 
 using log4net;
+using log4net.Appender;
+using log4net.Config;
 
 namespace ErkBot;
 public class Client
@@ -52,6 +54,8 @@ public class Client
     public async Task Start()
     {
         logChannel = await client.GetChannelAsync(config.LogChannelId);
+        BasicConfigurator.Configure(new DiscordLogger(logChannel), new ConsoleAppender());
+
         var tasks = Servers.Where(s => s.Enabled).Select(s => s.Start()).ToArray();
         var results = await Task.WhenAll(tasks);
         if (results.Any(b => !b))
