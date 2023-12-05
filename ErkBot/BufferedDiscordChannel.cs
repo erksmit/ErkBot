@@ -1,12 +1,13 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 
 using DSharpPlus.Entities;
 
 namespace ErkBot;
 
-public class BufferedDiscordChannel(DiscordChannel channel)
+public partial class BufferedDiscordChannel(DiscordChannel channel)
 {
-    public bool hasStarted { get; private set; }
+    public bool HasStarted { get; private set; }
 
     private readonly Queue<string> pendingMessages = new();
 
@@ -14,18 +15,28 @@ public class BufferedDiscordChannel(DiscordChannel channel)
 
     public void QueueMessage(string message)
     {
+        var lines = MatchLineBreaks().Split(message);
+        List<string> lineChunks = new();
+        // Split lines into chunks of 2000 characters
+        foreach(string line in lines)
+        {
+            var chunks = SplitByLength(line, MaximumLength);
+            lineChunks.AddRange(chunks);
+        }
+
         lock (pendingMessages)
         {
-            pendingMessages.Enqueue(message);
+            foreach(string line in lineChunks)
+                pendingMessages.Enqueue(line);
             consumptionSignal.Set();
         }
     }
 
     public void Start()
     {
-        if (!hasStarted)
+        if (!HasStarted)
             Task.Factory.StartNew(ConsumeMessages, TaskCreationOptions.LongRunning);
-        hasStarted = true;
+        HasStarted = true;
     }
 
     private async void ConsumeMessages()
@@ -66,4 +77,13 @@ public class BufferedDiscordChannel(DiscordChannel channel)
         } while (!done);
         return result.ToString();
     }
+
+    private static IEnumerable<string> SplitByLength(string str, int maxLength) {
+        for (int index = 0; index < str.Length; index += maxLength) {
+            yield return str.Substring(index, Math.Min(maxLength, str.Length - index));
+        }
+    }
+
+    [GeneratedRegex("\r\n|\r|\n")]
+    private static partial Regex MatchLineBreaks();
 }
