@@ -1,22 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
-using DSharpPlus;
-using DSharpPlus.Entities;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
-using DSharpPlus.CommandsNext;
 using System.Collections.Concurrent;
-using System.Data.SQLite;
-using System.IO;
-using Newtonsoft.Json;
-using System.Net.Sockets;
-using System.Text;
-using System.Reflection;
-using PostSharp.Community.Packer;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+
+using DSharpPlus.Entities;
 
 namespace discord_bot
 {

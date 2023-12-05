@@ -3,20 +3,27 @@ using DSharpPlus.Entities;
 using ErkBot.Server;
 using ErkBot.Server.Minecraft;
 
+using log4net;
+
 namespace ErkBot;
 public class Client
 {
-    private DiscordClient client;
-
     private DiscordChannel logChannel;
 
-    private Configuration config;
+    private readonly DiscordClient client;
 
-    public List<BaseServer> Servers { get; set; }
+    private readonly Configuration config;
+
+    private readonly ILog log;
+
+    public List<BaseServer> Servers { get; }
+
 
     
     public Client(Configuration config)
     {
+        this.config = config;
+        log = LogManager.GetLogger(typeof(Client));
         var discordConfig = new DiscordConfiguration
         {
             Token = config.DiscordToken,
@@ -24,7 +31,7 @@ public class Client
         client = new DiscordClient(discordConfig);
 
         Servers = new List<BaseServer>();
-        foreach(ServerConfiguration serverConfig in config.Servers) 
+        foreach(var serverConfig in config.Servers) 
         { 
             switch(serverConfig.Type)
             {
@@ -32,6 +39,7 @@ public class Client
                     {
                         var minecraftServerConfig = serverConfig as MinecraftServerConfiguration ?? throw new ConfigurationException("Minecraft server configuration is not valid");
                         var server = new MinecraftServer(client, minecraftServerConfig);
+                        Servers.Add(server);
                         break;
                     }
                 default:

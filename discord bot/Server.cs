@@ -1,15 +1,13 @@
-﻿using DSharpPlus.Entities;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+
+using DSharpPlus.Entities;
 
 namespace discord_bot
 {
-    
+
     public abstract class Server
     {
         public Process server;

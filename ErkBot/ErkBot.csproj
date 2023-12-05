@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="DSharpPlus" Version="4.4.3" />
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.4.3" />
+    <PackageReference Include="log4net" Version="2.0.15" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
