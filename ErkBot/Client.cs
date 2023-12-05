@@ -9,7 +9,11 @@ public class Client
     private DiscordClient client;
 
     private DiscordChannel logChannel;
+
+    private Configuration config;
+
     public List<BaseServer> Servers { get; set; }
+
     
     public Client(Configuration config)
     {
@@ -26,7 +30,8 @@ public class Client
             {
                 case ServerType.Minecraft:
                     {
-                        var server = new MinecraftServer(client, serverConfig as MinecraftServerConfiguration);
+                        var minecraftServerConfig = serverConfig as MinecraftServerConfiguration ?? throw new ConfigurationException("Minecraft server configuration is not valid");
+                        var server = new MinecraftServer(client, minecraftServerConfig);
                         break;
                     }
                 default:
@@ -37,9 +42,15 @@ public class Client
         }
     }
 
-    public void Start()
+    public async Task Start()
     {
+        logChannel = await client.GetChannelAsync(config.LogChannelId);
+        var tasks = Servers.Where(s => s.Enabled).Select(s => s.Start()).ToArray();
+        var results = await Task.WhenAll(tasks);
+        if (results.Any(b => !b))
+        {
 
+        }
     }
 
 
