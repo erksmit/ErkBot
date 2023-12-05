@@ -35,9 +35,9 @@ public class BufferedDiscordChannel(DiscordChannel channel)
             string message;
             lock (pendingMessages)
             {
+                message = TakeMessages(pendingMessages);
                 if (pendingMessages.Count == 0)
                     consumptionSignal.Reset();
-                message = TakeMessages(pendingMessages);
             }
             await channel.SendMessageAsync(message);
 
