@@ -15,18 +15,23 @@ public partial class BufferedDiscordChannel(DiscordChannel channel)
 
     public void QueueMessage(string message)
     {
-        var lines = MatchLineBreaks().Split(message);
-        List<string> lineChunks = new();
-        // Split lines into chunks of 2000 characters
-        foreach(string line in lines)
+        IEnumerable<string> lines = MatchLineBreaks().Split(message);
+
+        if (lines.Any(l => l.Length > MaximumLength))
         {
-            var chunks = SplitByLength(line, MaximumLength);
-            lineChunks.AddRange(chunks);
+            List<string> lineChunks = new();
+            // Split lines into chunks of 2000 characters
+            foreach(string line in lines)
+            {
+                var chunks = SplitByLength(line, MaximumLength);
+                lineChunks.AddRange(chunks);
+            }
+            lines = lineChunks.ToArray();
         }
 
         lock (pendingMessages)
         {
-            foreach(string line in lineChunks)
+            foreach(string line in lines)
                 pendingMessages.Enqueue(line);
             consumptionSignal.Set();
         }
