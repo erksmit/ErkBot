@@ -26,7 +26,7 @@ public partial class BufferedDiscordChannel(DiscordChannel channel)
                 var chunks = SplitByLength(line, MaximumLength);
                 lineChunks.AddRange(chunks);
             }
-            lines = lineChunks.ToArray();
+            lines = lineChunks;
         }
 
         lock (pendingMessages)
