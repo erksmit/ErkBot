@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ErkBot.Command
+namespace ErkBot.Command;
+
+internal class HelpFormatter
 {
-    internal class HelpFormatter
-    {
-    }
 }
