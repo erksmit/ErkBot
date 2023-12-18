@@ -1,7 +1,6 @@
-﻿using System.Text;
+﻿using DSharpPlus.Entities;
+using System.Text;
 using System.Text.RegularExpressions;
-
-using DSharpPlus.Entities;
 
 namespace ErkBot;
 
@@ -21,7 +20,7 @@ public partial class BufferedDiscordChannel(DiscordChannel channel)
         {
             List<string> lineChunks = new();
             // Split lines into chunks of 2000 characters
-            foreach(string line in lines)
+            foreach (string line in lines)
             {
                 var chunks = SplitByLength(line, MaximumLength);
                 lineChunks.AddRange(chunks);
@@ -31,7 +30,7 @@ public partial class BufferedDiscordChannel(DiscordChannel channel)
 
         lock (pendingMessages)
         {
-            foreach(string line in lines)
+            foreach (string line in lines)
                 pendingMessages.Enqueue(line);
             consumptionSignal.Set();
         }
@@ -48,6 +47,9 @@ public partial class BufferedDiscordChannel(DiscordChannel channel)
     {
         while (true)
         {
+            // Block until there are messages available again.
+            consumptionSignal.WaitOne();
+
             string message;
             lock (pendingMessages)
             {
@@ -59,12 +61,10 @@ public partial class BufferedDiscordChannel(DiscordChannel channel)
 
             // Wait so that some messages can accumulate.
             Thread.Sleep(1000);
-            // Block until there are messages available again.
-            consumptionSignal.WaitOne();
         }
     }
 
-    private const int MaximumLength = 2000;
+    private const int MaximumLength = 1950;
 
     private string TakeMessages(Queue<string> messages)
     {
@@ -83,8 +83,10 @@ public partial class BufferedDiscordChannel(DiscordChannel channel)
         return result.ToString();
     }
 
-    private static IEnumerable<string> SplitByLength(string str, int maxLength) {
-        for (int index = 0; index < str.Length; index += maxLength) {
+    private static IEnumerable<string> SplitByLength(string str, int maxLength)
+    {
+        for (int index = 0; index < str.Length; index += maxLength)
+        {
             yield return str.Substring(index, Math.Min(maxLength, str.Length - index));
         }
     }

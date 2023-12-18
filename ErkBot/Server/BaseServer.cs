@@ -1,113 +1,48 @@
-﻿using System.Diagnostics;
-
-using DSharpPlus;
-using DSharpPlus.Entities;
-using log4net;
+﻿using DSharpPlus;
+using ErkBot.Server.Configuration;
 
 namespace ErkBot.Server;
 public abstract class BaseServer
 {
-    public string DisplayName { get; }
-    public bool Enabled { get; }
-    public DiscordChannel LogChannel { get; private set; }
-    public ServerStatus Status { get; private set; }
-
-    protected BaseServer(DiscordClient client, ServerConfiguration config)
+    public BaseServer(DiscordClient client, IServerConfiguration config)
     {
-        log = LogManager.GetLogger(typeof(BaseServer));
-        Status = ServerStatus.Stopped;
+        this.client = client;
         DisplayName = config.Name;
         Enabled = config.Enabled;
         logChannelId = config.OutputChannelId;
-        discordClient = client;
-        
-        var serverDirectory = config.ServerDirectory;
-        var startScriptPath = config.StartScriptPath;
-        Process = new Process
-        {
-            StartInfo =
-            {
-                RedirectStandardOutput = true,
-                RedirectStandardInput = true,
-                CreateNoWindow = true,
-                FileName = startScriptPath,
-                WorkingDirectory = serverDirectory,
-            },
-        };
-        Process.OutputDataReceived += ServerOutputReceived;
-        Process.Exited += ServerExited;
-
+        Status = Enabled ? ServerStatus.Stopped : ServerStatus.Disabled;
         MessageReceived += SendReceivedMessageToDiscord;
     }
 
-    private readonly DiscordClient discordClient;
-    private readonly ulong logChannelId;
-    private readonly ILog log;
+    public string DisplayName { get; }
+    public bool Enabled { get; }
+    public ServerStatus Status { get; protected set; }
 
-    protected readonly Process Process;
-    protected BufferedDiscordChannel OutputChannel;
+    protected BufferedDiscordChannel? logChannel;
+    private ulong logChannelId;
+    protected DiscordClient client;
 
-    public async Task<bool> Start()
+    public async virtual Task Start()
     {
-        return await Task.Run(async () =>
+        if (logChannel == null)
         {
-            try
-            {
-                if(LogChannel == null)
-                {
-                    LogChannel = await discordClient.GetChannelAsync(logChannelId);
-                    OutputChannel = new BufferedDiscordChannel(LogChannel);
-                    OutputChannel.Start();
-                }
-
-                Process.Start();
-                Status = ServerStatus.Running;
-                log.Info($"Started server: {DisplayName}");
-                return true;
-            }
-            catch(Exception e)
-            {
-                log.Error($"Failed to start server: {DisplayName}", e);
-                return false;
-            }
-        });
+            var channel = await client.GetChannelAsync(logChannelId);
+            logChannel = new BufferedDiscordChannel(channel);
+            logChannel.Start();
+        }
     }
 
-    public async Task<bool> Stop(int timeOut = 10_000) => await Task.Run(() => Process.WaitForExit(timeOut));
-    
+    public abstract Task Stop(int timeOut = 10_000);
+
     public event EventHandler<ServerMessageReceivedEventArgs> MessageReceived;
 
-    protected virtual void ServerOutputReceived(object sender, DataReceivedEventArgs e)
-    {
-        string message = e.Data;
-        if (message != null)
-        {
-            OnMessageReceived(this, new ServerMessageReceivedEventArgs(message));
-        }
-    }
-
-    private void ServerExited(object sender, EventArgs e)
-    {
-        int exitCode = Process.ExitCode;
-        if (exitCode == 0)
-        {
-            Status = ServerStatus.Stopped;
-            log.Info($"Server {DisplayName} has exited gracefully");
-        }
-        else
-        {
-            Status = ServerStatus.Crashed;
-            log.Warn($"Server {DisplayName} has exited with exitcode {exitCode}");
-        }
-    }
-
-    protected void OnMessageReceived(object sender, ServerMessageReceivedEventArgs args)
+    protected void OnMessageReceived(object? sender, ServerMessageReceivedEventArgs args)
     {
         MessageReceived?.Invoke(sender, args);
     }
 
-    private void SendReceivedMessageToDiscord(object sender, ServerMessageReceivedEventArgs args)
+    private void SendReceivedMessageToDiscord(object? sender, ServerMessageReceivedEventArgs args)
     {
-        OutputChannel.QueueMessage(args.Message);
+        logChannel?.QueueMessage(args.Message);
     }
 }

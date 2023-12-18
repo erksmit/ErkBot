@@ -6,5 +6,11 @@ namespace ErkBot.Server;
 public enum ServerType
 {
     [EnumMember(Value = "minecraft")]
-    Minecraft
+    Minecraft,
+
+    [EnumMember(Value = "genericExecutable")]
+    Executable,
+
+    [EnumMember(Value = "fake")]
+    Fake
 }

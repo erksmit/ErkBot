@@ -2,30 +2,21 @@
 using DSharpPlus.Entities;
 
 using ErkBot.Server;
-
-using log4net;
-using log4net.Appender;
-using log4net.Config;
+using ErkBot.Server.Configuration;
+using ErkBot.Server.Types;
 
 namespace ErkBot;
 public class Client
 {
-    private DiscordChannel logChannel;
-
     private readonly DiscordClient client;
 
     private readonly Configuration config;
 
-    private readonly ILog log;
-
     public List<BaseServer> Servers { get; }
 
-
-    
     public Client(Configuration config)
     {
         this.config = config;
-        log = LogManager.GetLogger(typeof(Client));
         var discordConfig = new DiscordConfiguration
         {
             Token = config.DiscordToken,
@@ -33,13 +24,25 @@ public class Client
         client = new DiscordClient(discordConfig);
 
         Servers = new List<BaseServer>();
-        foreach(var serverConfig in config.Servers) 
-        { 
-            switch(serverConfig.Type)
+        foreach (var serverConfig in config.Servers)
+        {
+            switch (serverConfig.Type)
             {
                 case ServerType.Minecraft:
                     {
-                        var server = new MinecraftServer(client, serverConfig);
+                        var server = new MinecraftServer(client, (ExecutableServerConfiguration)serverConfig);
+                        Servers.Add(server);
+                        break;
+                    }
+                case ServerType.Fake:
+                    {
+                        var server = new FakeServer(client, (FakeServerConfiguration)serverConfig);
+                        Servers.Add(server);
+                        break;
+                    }
+                case ServerType.Executable:
+                    {
+                        var server = new ExecutableServer(client, (ExecutableServerConfiguration)serverConfig);
                         Servers.Add(server);
                         break;
                     }
@@ -53,16 +56,16 @@ public class Client
 
     public async Task Start()
     {
-        logChannel = await client.GetChannelAsync(config.LogChannelId);
-        BasicConfigurator.Configure(new DiscordLogger(logChannel), new ConsoleAppender());
+        DiscordActivity activity = new("You", ActivityType.Watching);
+        await client.ConnectAsync(activity);
+
+        var logChannel = await client.GetChannelAsync(config.LogChannelId);
+        Logger.Initialize(logChannel);
+        await Logger.InfoAsync("Startup", "Hey Hey");
 
         var tasks = Servers.Where(s => s.Enabled).Select(s => s.Start()).ToArray();
-        var results = await Task.WhenAll(tasks);
-        if (results.Any(b => !b))
-        {
+        Task.WaitAll(tasks);
 
-        }
+        await Logger.InfoAsync("Startup finished");
     }
-
-
 }

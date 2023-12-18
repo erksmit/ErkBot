@@ -1,0 +1,2 @@
+﻿namespace ErkBot.Server.Configuration;
+public readonly record struct ExecutableServerConfiguration(string Name, ulong OutputChannelId, string StartScriptPath, bool Enabled, ServerType Type, string? ServerDirectory = null) : IServerConfiguration;
