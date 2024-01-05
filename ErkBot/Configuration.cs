@@ -7,7 +7,7 @@ public readonly record struct Configuration(
     char Prefix,
     string DiscordToken,
     ulong LogChannelId,
-    IServerConfiguration[] Servers
+    BaseServerConfiguration[] Servers
 )
 {
     public static Configuration LoadConfiguration(string path = "appsettings.json")

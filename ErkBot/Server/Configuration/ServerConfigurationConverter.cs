@@ -2,11 +2,11 @@
 using Newtonsoft.Json.Linq;
 
 namespace ErkBot.Server.Configuration;
-internal class ServerConfigurationConverter : JsonConverter<IServerConfiguration>
+internal class ServerConfigurationConverter : JsonConverter<BaseServerConfiguration>
 {
     public override bool CanWrite => false;
 
-    public override IServerConfiguration? ReadJson(JsonReader reader, Type objectType, IServerConfiguration? existingValue, bool hasExistingValue, JsonSerializer serializer)
+    public override BaseServerConfiguration? ReadJson(JsonReader reader, Type objectType, BaseServerConfiguration? existingValue, bool hasExistingValue, JsonSerializer serializer)
     {
         JObject jo = JObject.Load(reader);
 
@@ -14,23 +14,25 @@ internal class ServerConfigurationConverter : JsonConverter<IServerConfiguration
         var type = serializer.Deserialize<ServerType>(token.CreateReader());
 
         var joReader = jo.CreateReader();
-        IServerConfiguration config;
+        BaseServerConfiguration config;
         switch (type)
         {
             case ServerType.Executable:
-            case ServerType.Minecraft:
                 config = new ExecutableServerConfiguration();
                 break;
+            case ServerType.Minecraft:
+                config = new MinecraftServerConfiguration();
+                break;
             case ServerType.Fake:
-                config = new FakeServerConfiguration();
+                config = new BaseServerConfiguration();
                 break;
             default:
                 throw new ConfigurationException("One or more servers has an invalid type configured");
         }
-        serializer.Populate(joReader, config); 
+        serializer.Populate(joReader, config);
         return config;
     }
-    public override void WriteJson(JsonWriter writer, IServerConfiguration? value, JsonSerializer serializer)
+    public override void WriteJson(JsonWriter writer, BaseServerConfiguration? value, JsonSerializer serializer)
     {
         throw new NotImplementedException("This converter is read only");
     }

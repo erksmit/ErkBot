@@ -1,12 +1,11 @@
 ﻿using DSharpPlus;
 using ErkBot.Server.Configuration;
-
 using Timer = System.Timers.Timer;
 
 namespace ErkBot.Server.Types;
 internal class FakeServer : BaseServer
 {
-    public FakeServer(DiscordClient client, FakeServerConfiguration config) : base(client, config)
+    public FakeServer(DiscordClient client, BaseServerConfiguration config) : base(client, config)
     {
         timer = new Timer();
         timer.Elapsed += SendData;
@@ -28,7 +27,6 @@ internal class FakeServer : BaseServer
             .Select(s => s[Random.Shared.Next(s.Length)]).ToArray());
         OnMessageReceived(this, new ServerMessageReceivedEventArgs(message));
     }
-
 
     public override Task Stop(int timeOut = 10000)
     {

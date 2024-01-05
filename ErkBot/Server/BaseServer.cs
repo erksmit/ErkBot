@@ -4,7 +4,7 @@ using ErkBot.Server.Configuration;
 namespace ErkBot.Server;
 public abstract class BaseServer
 {
-    public BaseServer(DiscordClient client, IServerConfiguration config)
+    public BaseServer(DiscordClient client, BaseServerConfiguration config)
     {
         this.client = client;
         DisplayName = config.Name;
