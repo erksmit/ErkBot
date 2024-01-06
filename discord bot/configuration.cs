@@ -55,7 +55,6 @@ static class Config
         Program.Form.LoadServerTextbox();
 
         Program.SendMessage(new Message(OutputChannel, "configuration loaded"));
-
     }
     private static async Task ConfigureDiscord(RawConfig rawConfig)
     {

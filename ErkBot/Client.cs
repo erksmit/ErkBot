@@ -1,9 +1,13 @@
-﻿using DSharpPlus;
+﻿using discord_bot;
+using DSharpPlus;
+using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
-
+using ErkBot.Command;
 using ErkBot.Server;
 using ErkBot.Server.Configuration;
 using ErkBot.Server.Types;
+using ErkBot.Server.Types.Minecraft;
+using Microsoft.Extensions.Logging;
 
 namespace ErkBot;
 public class Client
@@ -20,8 +24,18 @@ public class Client
         var discordConfig = new DiscordConfiguration
         {
             Token = config.DiscordToken,
+            Intents = DiscordIntents.All,
+            MinimumLogLevel = LogLevel.Information
         };
         client = new DiscordClient(discordConfig);
+        var commandConfig = new CommandsNextConfiguration
+        {
+            CaseSensitive = false,
+            StringPrefixes = new string[] { config.Prefix.ToString() },
+        };
+        var commands = client.UseCommandsNext(commandConfig);
+        commands.SetHelpFormatter<HelpFormatter>();
+        commands.RegisterCommands<MiscCommands>();
 
         Servers = new List<BaseServer>();
         foreach (var serverConfig in config.Servers)
@@ -30,13 +44,13 @@ public class Client
             {
                 case ServerType.Minecraft:
                     {
-                        var server = new MinecraftServer(client, (ExecutableServerConfiguration)serverConfig);
+                        var server = new MinecraftServer(client, (MinecraftServerConfiguration)serverConfig);
                         Servers.Add(server);
                         break;
                     }
                 case ServerType.Fake:
                     {
-                        var server = new FakeServer(client, (FakeServerConfiguration)serverConfig);
+                        var server = new FakeServer(client, serverConfig);
                         Servers.Add(server);
                         break;
                     }
@@ -61,11 +75,11 @@ public class Client
 
         var logChannel = await client.GetChannelAsync(config.LogChannelId);
         Logger.Initialize(logChannel);
-        await Logger.InfoAsync("Startup", "Hey Hey");
+        await Logger.InfoAsync("Hello");
 
         var tasks = Servers.Where(s => s.Enabled).Select(s => s.Start()).ToArray();
         Task.WaitAll(tasks);
 
-        await Logger.InfoAsync("Startup finished");
+        //await Logger.InfoAsync("Startup finished");
     }
 }

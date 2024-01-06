@@ -46,7 +46,7 @@ internal class NetworkStreamHelper
         return data;
     }
 
-    internal static int ReadVarInt(byte[] buffer)
+    internal int ReadVarInt(byte[] buffer)
     {
         var value = 0;
         var size = 0;
@@ -62,7 +62,7 @@ internal class NetworkStreamHelper
         return value | ((b & 0x7F) << (size * 7));
     }
 
-    internal static string ReadString(byte[] buffer, int length)
+    internal string ReadString(byte[] buffer, int length)
     {
         var data = Read(buffer, length);
         return Encoding.UTF8.GetString(data);
