@@ -2,8 +2,7 @@
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Entities;
 using System.Text;
-
-namespace discord_bot;
+namespace ErkBot.Discord.Commands;
 
 internal class HelpFormatter : BaseHelpFormatter
 {
@@ -11,13 +10,13 @@ internal class HelpFormatter : BaseHelpFormatter
 
     public HelpFormatter(CommandContext ctx) : base(ctx)
     {
-        this.result = new StringBuilder("```Commands:\n");
+        result = new StringBuilder("```Commands:\n");
     }
 
     public override BaseHelpFormatter WithCommand(Command command)
     {
         result.Append($"\t{command.Name}\n");
-        if (!(command is CommandGroup))
+        if (command is not CommandGroup)
         {
             AddCommand(command);
         }
@@ -38,7 +37,7 @@ internal class HelpFormatter : BaseHelpFormatter
         result.Append($"\t{command.Name}:");
         if (command.Description != null)
             result.Append($" {command.Description}");
-        result.Append($"\n\t\tusage: { command.Name}");
+        result.Append($"\n\t\tusage: {command.Name}");
         var args = command.Overloads.First().Arguments;
         if (args.Count > 0)
         {

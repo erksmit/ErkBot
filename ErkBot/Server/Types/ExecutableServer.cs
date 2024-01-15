@@ -1,5 +1,7 @@
 ﻿using DSharpPlus;
+using ErkBot.Discord;
 using ErkBot.Server.Configuration;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
 namespace ErkBot.Server.Types;
@@ -36,11 +38,11 @@ public class ExecutableServer : BaseServer
                 Process.Start();
                 Status = ServerStatus.Running;
 
-                await Logger.InfoAsync("Server started", $"Started server: {DisplayName}");
+                Logger.Log(LogLevel.Information, $"Server {DisplayName} has started");
             }
             catch (Exception e)
             {
-                await Logger.WarnAsync("Server start failed", $"Failed to start server: {DisplayName} because {e.GetType().Name}: {e.Message}");
+                Logger.Log(LogLevel.Warning, $"Server {DisplayName} has failed to start because {e.GetType().Name}: {e.Message}");
             }
         });
     }
@@ -62,12 +64,12 @@ public class ExecutableServer : BaseServer
         if (exitCode == 0)
         {
             Status = ServerStatus.Stopped;
-            Logger.Info("Server shutdown", $"Server {DisplayName} has exited gracefully");
+            Logger.Log(LogLevel.Information, $"Server {DisplayName} has exited gracefully.");
         }
         else
         {
             Status = ServerStatus.Crashed;
-            Logger.Warn("Server crash", $"Server {DisplayName} has exited with exitcode {exitCode}");
+            Logger.Log(LogLevel.Warning, $"Server {DisplayName} broke.");
         }
     }
 }
