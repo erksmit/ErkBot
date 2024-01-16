@@ -4,16 +4,25 @@ using System.Text.RegularExpressions;
 
 namespace ErkBot;
 
-public partial class BufferedDiscordChannel(DiscordChannel channel)
+public partial class BufferedDiscordChannel
 {
+    public BufferedDiscordChannel(DiscordChannel channel)
+    {
+        this.channel = channel;
+    }
+
     public bool HasStarted { get; private set; }
 
     private readonly Queue<string> pendingMessages = new();
 
     private readonly ManualResetEvent consumptionSignal = new(false);
 
+    private readonly DiscordChannel channel;
+
     public void QueueMessage(string message)
     {
+        if (string.IsNullOrWhiteSpace(message))
+            return;
         IEnumerable<string> lines = MatchLineBreaks().Split(message);
 
         if (lines.Any(l => l.Length > MaximumLength))

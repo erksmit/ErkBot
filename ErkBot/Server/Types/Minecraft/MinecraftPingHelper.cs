@@ -52,7 +52,7 @@ internal class MinecraftPingHelper(int port)
         var buffer = new byte[short.MaxValue];
         // var buffer = new byte[4096];
         stream.Read(buffer, 0, buffer.Length);
-
+        // TODO: reading from stream currently does not work
         string json = helper.ReadJsonMessage();
         var ping = JsonConvert.DeserializeObject<PingInformation>(json);
         return ping;

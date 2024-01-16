@@ -11,16 +11,19 @@ public class ExecutableServer : BaseServer
         var startScriptPath = config.StartScriptPath;
         Process = new Process
         {
+            EnableRaisingEvents = true,
             StartInfo =
             {
-                RedirectStandardOutput = true,
-                RedirectStandardInput = true,
+                UseShellExecute = false,
                 CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
                 FileName = startScriptPath,
                 WorkingDirectory = serverDirectory ?? Path.GetDirectoryName(startScriptPath),
             },
         };
         Process.OutputDataReceived += ServerOutputReceived;
+        Process.ErrorDataReceived += ServerOutputReceived;
         Process.Exited += ServerExited;
     }
 
@@ -32,13 +35,15 @@ public class ExecutableServer : BaseServer
         try
         {
             Process.Start();
+            Process.BeginOutputReadLine();
+            Process.BeginErrorReadLine();
             Status = ServerStatus.Running;
-            Logger.Log(LogLevel.Information, $"Server {DisplayName} has started");
+            Logger.Log(LogLevel.Information, $"Server {DisplayName} has started.");
             return true;
         }
         catch (Exception e)
         {
-            Logger.Log(LogLevel.Warning, $"Server {DisplayName} has failed to start because {e.GetType().Name}: {e.Message}");
+            Logger.Log(LogLevel.Warning, $"Server {DisplayName} has failed to start because of {e.GetType().Name}: {e.Message}");
             Status = ServerStatus.Crashed;
             return false;
         }
@@ -61,10 +66,12 @@ public class ExecutableServer : BaseServer
         int exitCode = Process.ExitCode;
         if (exitCode == 0)
         {
+            Logger.Log(LogLevel.Warning, $"Server {DisplayName} has stopped.");
             Status = ServerStatus.Stopped;
         }
         else
         {
+            Logger.Log(LogLevel.Warning, $"Server {DisplayName} has crashed.");
             Status = ServerStatus.Crashed;
         }
     }
