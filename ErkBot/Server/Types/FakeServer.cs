@@ -1,23 +1,26 @@
-﻿using DSharpPlus;
-using ErkBot.Server.Configuration;
+﻿using ErkBot.Server.Configuration;
 using Timer = System.Timers.Timer;
 
 namespace ErkBot.Server.Types;
+
+/// <summary>
+/// A fake server that outputs random message on an interval.
+/// </summary>
 internal class FakeServer : BaseServer
 {
-    public FakeServer(DiscordClient client, BaseServerConfiguration config) : base(client, config)
+    public FakeServer(BaseServerConfiguration config) : base(config)
     {
         timer = new Timer();
         timer.Elapsed += SendData;
-        timer.Interval = 100;
+        timer.Interval = 2000;
     }
 
-    private Timer timer;
+    private readonly Timer timer;
 
-    public override async Task Start()
+    public override bool Start()
     {
-        await base.Start();
         timer.Start();
+        return true;
     }
 
     private void SendData(object? sender, EventArgs args)
@@ -25,7 +28,7 @@ internal class FakeServer : BaseServer
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         var message = new string(Enumerable.Repeat(chars, Random.Shared.Next(1, 5))
             .Select(s => s[Random.Shared.Next(s.Length)]).ToArray());
-        OnMessageReceived(this, new ServerMessageReceivedEventArgs(message));
+        OnMessageReceived(message);
     }
 
     public override Task Stop(int timeOut = 10000)

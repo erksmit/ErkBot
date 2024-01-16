@@ -8,28 +8,32 @@ public class ServerManager
 {
     public List<BaseServer> Servers { get; private set; }
 
-    internal ServerManager(DiscordClient client, BaseServerConfiguration[] config)
+    internal ServerManager(BaseServerConfiguration[] config)
     {
         Servers = new List<BaseServer>();
         foreach (var serverConfig in config)
         {
+            // skip creating servers that are not enabled
+            if (!serverConfig.Enabled)
+                continue;
+
             switch (serverConfig.Type)
             {
                 case ServerType.Minecraft:
                     {
-                        var server = new MinecraftServer(client, (MinecraftServerConfiguration)serverConfig);
+                        var server = new MinecraftServer((MinecraftServerConfiguration)serverConfig);
                         Servers.Add(server);
                         break;
                     }
                 case ServerType.Fake:
                     {
-                        var server = new FakeServer(client, serverConfig);
+                        var server = new FakeServer(serverConfig);
                         Servers.Add(server);
                         break;
                     }
                 case ServerType.Executable:
                     {
-                        var server = new ExecutableServer(client, (ExecutableServerConfiguration)serverConfig);
+                        var server = new ExecutableServer((ExecutableServerConfiguration)serverConfig);
                         Servers.Add(server);
                         break;
                     }
@@ -41,9 +45,12 @@ public class ServerManager
         }
     }
 
-    public async Task StartAll()
+    public void StartAll()
     {
-        await Task.WhenAll(Servers.Where(s => s.Enabled).Select(s => s.Start()));
+        foreach (var server in Servers)
+        {
+            server.Start();
+        }
     }
 
     public async Task StopAll(int timeout = 10_000)

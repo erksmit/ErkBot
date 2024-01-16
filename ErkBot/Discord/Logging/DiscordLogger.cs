@@ -1,7 +1,7 @@
 ﻿using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 
-namespace ErkBot.Discord;
+namespace ErkBot.Discord.Logging;
 internal class DiscordLogger
 {
     private readonly DiscordChannel channel;
@@ -24,7 +24,7 @@ internal class DiscordLogger
         if (level < minimumLevel)
             return;
 
-        if (level <= LogLevel.Information) 
+        if (level <= LogLevel.Information)
         {
             await channel.SendMessageAsync(e.Message);
         }

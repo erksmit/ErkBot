@@ -3,7 +3,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using System.Diagnostics;
 
 namespace ErkBot.Discord.Commands;
-public class MiscCommands : BaseCommandModule
+internal class MiscCommands : BaseCommandModule
 {
 
     [Command("uptime"), Description("gets the uptime of the bot")]

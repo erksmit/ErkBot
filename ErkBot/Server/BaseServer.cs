@@ -1,48 +1,79 @@
-﻿using DSharpPlus;
-using ErkBot.Server.Configuration;
+﻿using ErkBot.Server.Configuration;
 
 namespace ErkBot.Server;
+
+/// <summary>
+/// The base class for servers.
+/// </summary>
 public abstract class BaseServer
 {
-    public BaseServer(DiscordClient client, BaseServerConfiguration config)
+    public BaseServer(BaseServerConfiguration config)
     {
-        this.client = client;
         DisplayName = config.Name;
         Enabled = config.Enabled;
-        logChannelId = config.OutputChannelId;
-        Status = Enabled ? ServerStatus.Stopped : ServerStatus.Disabled;
-        MessageReceived += SendReceivedMessageToDiscord;
+        LogChannelId = config.OutputChannelId;
+        Status = ServerStatus.Stopped;
     }
 
+    /// <summary>
+    /// A user friendly name for the server.
+    /// </summary>
     public string DisplayName { get; }
+
+    /// <summary>
+    /// Whether the server is enabled, disabled servers should not be started.
+    /// </summary>
     public bool Enabled { get; }
-    public ServerStatus Status { get; protected set; }
 
-    protected BufferedDiscordChannel? logChannel;
-    private ulong logChannelId;
-    protected DiscordClient client;
+    /// <summary>
+    /// The id of the discord channel server output can be sent to.
+    /// </summary>
+    public ulong LogChannelId { get; }
 
-    public async virtual Task Start()
+    private ServerStatus _status;
+    public ServerStatus Status
     {
-        if (logChannel == null)
+        get => _status;
+        protected set
         {
-            var channel = await client.GetChannelAsync(logChannelId);
-            logChannel = new BufferedDiscordChannel(channel);
-            logChannel.Start();
+            StatusChanged?.Invoke(this, value);
+            _status = value;
         }
     }
 
+    /// <summary>
+    /// Fires when the status of the server changed.
+    /// </summary>
+    public event EventHandler<ServerStatus>? StatusChanged;
+
+    /// <summary>
+    /// Starts the server
+    /// </summary>
+    /// <returns>
+    /// A <see cref="bool"/> indicating whether the server was started
+    /// </returns>
+    public abstract bool Start();
+
+    /// <summary>
+    /// Stops the server.
+    /// </summary>
+    /// <param name="timeOut">The amount of milliseconds to wait for the server to exit.</param>
+    /// <returns>A <see cref="Task"/> that finishes when the server has exited or the <paramref name="timeOut"/> has ran out.</returns>
     public abstract Task Stop(int timeOut = 10_000);
 
-    public event EventHandler<ServerMessageReceivedEventArgs> MessageReceived;
+    /// <summary>
+    /// Fires when the server outputs a message.
+    /// </summary>
+    public event EventHandler<OutputReceivedEventArgs>? OutputReceived;
 
-    protected void OnMessageReceived(object? sender, ServerMessageReceivedEventArgs args)
+    /// <summary>
+    /// Invokes the <see cref="OutputReceived"/> event.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="args"></param>
+    protected virtual void OnMessageReceived(string message, object? sender = null)
     {
-        MessageReceived?.Invoke(sender, args);
-    }
-
-    private void SendReceivedMessageToDiscord(object? sender, ServerMessageReceivedEventArgs args)
-    {
-        logChannel?.QueueMessage(args.Message);
+        var args = new OutputReceivedEventArgs(message);
+        OutputReceived?.Invoke(sender ?? this, args);
     }
 }

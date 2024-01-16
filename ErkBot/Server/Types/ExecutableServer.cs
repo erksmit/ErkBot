@@ -1,13 +1,11 @@
-﻿using DSharpPlus;
-using ErkBot.Discord;
-using ErkBot.Server.Configuration;
+﻿using ErkBot.Server.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
 namespace ErkBot.Server.Types;
 public class ExecutableServer : BaseServer
 {
-    public ExecutableServer(DiscordClient client, ExecutableServerConfiguration config) : base(client, config)
+    public ExecutableServer(ExecutableServerConfiguration config) : base(config)
     {
         var serverDirectory = config.ServerDirectory;
         var startScriptPath = config.StartScriptPath;
@@ -28,25 +26,25 @@ public class ExecutableServer : BaseServer
 
     protected readonly Process Process;
 
-    public override async Task Start()
+    /// <inheritdoc/>
+    public override bool Start()
     {
-        await base.Start();
-        await Task.Run(async () =>
+        try
         {
-            try
-            {
-                Process.Start();
-                Status = ServerStatus.Running;
-
-                Logger.Log(LogLevel.Information, $"Server {DisplayName} has started");
-            }
-            catch (Exception e)
-            {
-                Logger.Log(LogLevel.Warning, $"Server {DisplayName} has failed to start because {e.GetType().Name}: {e.Message}");
-            }
-        });
+            Process.Start();
+            Status = ServerStatus.Running;
+            Logger.Log(LogLevel.Information, $"Server {DisplayName} has started");
+            return true;
+        }
+        catch (Exception e)
+        {
+            Logger.Log(LogLevel.Warning, $"Server {DisplayName} has failed to start because {e.GetType().Name}: {e.Message}");
+            Status = ServerStatus.Crashed;
+            return false;
+        }
     }
 
+    /// <inheritdoc/>
     public override async Task Stop(int timeOut = 10_000) => await Task.Run(() => Process.WaitForExit(timeOut));
 
     protected virtual void ServerOutputReceived(object? sender, DataReceivedEventArgs e)
@@ -54,7 +52,7 @@ public class ExecutableServer : BaseServer
         string? message = e.Data;
         if (message != null)
         {
-            OnMessageReceived(this, new ServerMessageReceivedEventArgs(message));
+            OnMessageReceived(message);
         }
     }
 
@@ -64,12 +62,10 @@ public class ExecutableServer : BaseServer
         if (exitCode == 0)
         {
             Status = ServerStatus.Stopped;
-            Logger.Log(LogLevel.Information, $"Server {DisplayName} has exited gracefully.");
         }
         else
         {
             Status = ServerStatus.Crashed;
-            Logger.Log(LogLevel.Warning, $"Server {DisplayName} broke.");
         }
     }
 }
