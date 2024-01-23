@@ -5,10 +5,9 @@ using System.Net.Sockets;
 namespace ErkBot.Server.Types.Minecraft;
 internal class MinecraftPingHelper(int port)
 {
-    public int Port { get; private set; } = port;
+    public int Port { get; } = port;
 
     private const string Host = "localhost";
-
 
     public async Task<PingInformation?> GetPingInformation()
     {
@@ -26,36 +25,28 @@ internal class MinecraftPingHelper(int port)
             return null;
 
         var stream = client.GetStream();
-        NetworkStreamHelper helper = new (stream);
 
-        /*
-        * Send a "Handshake" packet
-        * http://wiki.vg/Server_List_Ping#Ping_Process
-        */
-        helper.WriteVarInt(47);
-        helper.WriteString("localhost");
-        helper.WriteShort(25565);
-        helper.WriteVarInt(1);
-        helper.Flush(0);
+        // send a handshake packet
+        var handshake = new PacketWriter(0x00);
+        handshake.WriteVarInt(47); // protocol version (47 is for minecraft 1.8 but anything above 1.7 is fine)
+        handshake.WriteString("localhost");
+        handshake.WriteUShort((ushort)Port);
+        handshake.WriteVarInt(1); // next state: status
+        handshake.Send(stream);
 
-        /*
-         * Send a "Status Request" packet
-         * http://wiki.vg/Server_List_Ping#Ping_Process
-         */
-        helper.Flush(0);
+        // send a status request packet, this contains no data
+        var statusPacket = new PacketWriter(0x00);
+        statusPacket.Send(stream);
 
-        /*
-         * If you are using a modded server then use a larger buffer to account, 
-         * see link for explanation and a motd to HTML snippet
-         * https://gist.github.com/csh/2480d14fbbb33b4bbae3#gistcomment-2672658
-         */
-        var buffer = new byte[short.MaxValue];
-        // var buffer = new byte[4096];
-        stream.Read(buffer, 0, buffer.Length);
-        // TODO: reading from stream currently does not work
-        string json = helper.ReadJsonMessage();
-        var ping = JsonConvert.DeserializeObject<PingInformation>(json);
-        return ping;
+        // now we can read the status from the stream
+        var reader = new PacketReader(stream);
+        reader.ReadVarInt(); // read and discard the complete packet length
+        reader.ReadVarInt(); // read and discard the packet id
+        int length = reader.ReadVarInt();
+        string data = reader.ReadString(length);
+
+        client.Close();
+        var pingInfo = JsonConvert.DeserializeObject<PingInformation>(data);
+        return pingInfo;
     }
 }
-

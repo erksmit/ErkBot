@@ -4,6 +4,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using ErkBot.Server;
 using ErkBot.Server.Types.Minecraft;
+using System.Text;
 
 namespace ErkBot.Discord.Commands;
 
@@ -101,9 +102,23 @@ internal class ServerCommands : BaseCommandModule
             else
             {
                 var info = maybeInfo.Value;
-                embed.AddField("Version", info!.Version.Name);
-                embed.AddField("Players online", $"{info.Players.Online}/{info.Players.Max}");
-                embed.Description = info.Description.Text;
+                StringBuilder desc = new();
+                desc.AppendLine("Version: " + info.Version.Name);
+                desc.AppendLine("Players online:");
+                if (info.Players.Sample != null && info.Players.Sample.Length != 0)
+                {
+                    foreach (var player in info.Players.Sample)
+                    {
+                        desc.AppendLine("\t" + player.Name);
+                    }
+                }
+                else
+                    desc.AppendLine("\tNone");
+                if (string.IsNullOrEmpty(info.Description.Text))
+                    desc.AppendLine(info.Description.Extra?.First().text);
+                else
+                    desc.AppendLine(info.Description.Text);
+                embed.Description = desc.ToString();
             }
         }
         else
